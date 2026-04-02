@@ -2,9 +2,9 @@
 
 [![Flutter](https://img.shields.io/badge/Flutter-v3.22+-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
 [![State Management](https://img.shields.io/badge/Provider-v6.1.1-6BA539?logo=flutter&logoColor=white)](https://pub.dev/packages/provider)
-[![Firebase](https://img.shields.io/badge/Firebase-Auth-FFCA28?logo=firebase&logoColor=white)](https://firebase.google.com)
+[![Storage](https://img.shields.io/badge/Storage-SharedPreferences-0175C2?logo=dart&logoColor=white)](https://pub.dev/packages/shared_preferences)
 
-A high-fidelity, premium Flutter application designed for a seamless food and grocery shopping experience. Built with a focus on modern aesthetics, fluid animations, and robust functionality.
+A high-fidelity, premium Flutter application designed for a seamless food and grocery shopping experience. Built with a focus on modern aesthetics, fluid animations, and robust functionality using local storage for a zero-backend configuration.
 
 ## ✨ Features
 
@@ -19,7 +19,7 @@ A high-fidelity, premium Flutter application designed for a seamless food and gr
 - **Smart Cart System**: Intelligent grouping of items based on customization, ensuring unique configurations are treated as separate line items.
 
 ### 🔐 Core Functionality
-- **Firebase Authentication**: Secure user sign-up and sign-in with granular error feedback.
+- **Local User Management**: Secure local authentication and session management using `SharedPreferences`.
 - **Wishlist Management**: Personalized "Favorites" section with animated state persistence.
 - **Global Tab State**: Unified navigation shell for seamless switching between Home, Cart, Favorites, and Profile.
 
@@ -27,7 +27,7 @@ A high-fidelity, premium Flutter application designed for a seamless food and gr
 
 - **Framework**: [Flutter](https://flutter.dev)
 - **State Management**: [Provider](https://pub.dev/packages/provider) (Cart, Theme, Tab, Favorites)
-- **Backend**: [Firebase Auth](https://firebase.google.com)
+- **Local Storage**: [SharedPreferences](https://pub.dev/packages/shared_preferences) (User Sessions, Authentication)
 - **Typography**: [Google Fonts (Inter)](https://fonts.google.com/specimen/Inter)
 - **Image Handling**: [Cached Network Image](https://pub.dev/packages/cached_network_image) for optimized performance.
 
@@ -40,13 +40,12 @@ A high-fidelity, premium Flutter application designed for a seamless food and gr
 ### Prerequisites
 - Flutter SDK (Stable channel)
 - Dart SDK
-- Firebase account for backend features
 
 ### Installation
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/maame-18/grocery_store.git
+   git clone https://github.com/Qharny/FoodHub-UI-Kit.git
    ```
 
 2. **Install dependencies:**
@@ -54,11 +53,7 @@ A high-fidelity, premium Flutter application designed for a seamless food and gr
    flutter pub get
    ```
 
-3. **Firebase Setup:**
-   - Link your project to [Firebase Console](https://console.firebase.google.com).
-   - Download and add `google-services.json` (Android) and `GoogleService-Info.plist` (iOS).
-
-4. **Run the app:**
+3. **Run the app:**
    ```bash
    flutter run
    ```
@@ -70,7 +65,7 @@ lib/
 ├── models/         # Data models (FoodItem, Topping, CartItem)
 ├── providers/      # Global state (Cart, Favorites, Tab, Theme)
 ├── screens/        # UI Layers (Home, Main Shell, Details, etc.)
-├── services/       # External integrations (AuthService)
+├── services/       # External integrations (Local AuthService)
 ├── utils/          # Constants, Mock Data, and Theme configs
 └── widgets/        # Reusable UI components (ShuffleBanner, FoodCard)
 ```

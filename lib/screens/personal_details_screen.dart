@@ -179,7 +179,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
       ),
       onPressed: () {
         if (_formKey.currentState!.validate()) {
-          // Typically we would save to Firebase/Backend here
+          // Typically we would save to local storage or a mock backend here
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text('Profile updated successfully!'),
