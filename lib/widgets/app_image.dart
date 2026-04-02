@@ -25,6 +25,19 @@ class AppImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final isAsset = imageUrl.startsWith('assets/');
 
+    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+    
+    // Safety check for non-finite dimensions (e.g. double.infinity)
+    int? resolvedCacheWidth = memCacheWidth;
+    if (resolvedCacheWidth == null && width != null && width!.isFinite) {
+      resolvedCacheWidth = (width! * pixelRatio).toInt();
+    }
+    
+    int? resolvedCacheHeight = memCacheHeight;
+    if (resolvedCacheHeight == null && height != null && height!.isFinite) {
+      resolvedCacheHeight = (height! * pixelRatio).toInt();
+    }
+
     Widget imageWidget;
     if (isAsset) {
       imageWidget = Image.asset(
@@ -32,8 +45,8 @@ class AppImage extends StatelessWidget {
         width: width,
         height: height,
         fit: fit,
-        cacheWidth: memCacheWidth,
-        cacheHeight: memCacheHeight,
+        cacheWidth: resolvedCacheWidth,
+        cacheHeight: resolvedCacheHeight,
         errorBuilder: (context, error, stackTrace) => _buildErrorWidget(),
       );
     } else {
@@ -42,8 +55,8 @@ class AppImage extends StatelessWidget {
         width: width,
         height: height,
         fit: fit,
-        memCacheWidth: memCacheWidth ?? (width != null ? (width! * MediaQuery.of(context).devicePixelRatio).toInt() : null),
-        memCacheHeight: memCacheHeight ?? (height != null ? (height! * MediaQuery.of(context).devicePixelRatio).toInt() : null),
+        memCacheWidth: resolvedCacheWidth,
+        memCacheHeight: resolvedCacheHeight,
         placeholder: (context, url) => _buildPlaceholderWidget(),
         errorWidget: (context, url, error) => _buildErrorWidget(),
       );

@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../services/auth_service.dart';
 import '../utils/app_colors.dart';
 import '../utils/session_manager.dart';
-import 'home_screen.dart';
+import 'main_screen.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => const MainScreen()),
         );
       }
     } else {

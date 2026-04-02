@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
 import '../utils/app_colors.dart';
 import '../utils/session_manager.dart';
-import 'home_screen.dart';
+import 'main_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -55,7 +55,7 @@ class _SignupScreenState extends State<SignupScreen> {
       if (mounted) {
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => const MainScreen()),
           (route) => false,
         );
       }
