@@ -30,51 +30,63 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textMain = isDark ? AppColors.textMainDark : AppColors.textMain;
-    
-    // Filter items based on category
-    final filteredItems = selectedCategory == 'All' 
-        ? mockFoodItems 
+
+    final filteredItems = selectedCategory == 'All'
+        ? mockFoodItems
         : mockFoodItems.where((item) => item.category == selectedCategory).toList();
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                child: _buildHeader(context, textMain),
+          slivers: [
+            const SliverPadding(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              sliver: SliverToBoxAdapter(child: HomeHeader()),
+            ),
+            const SliverPadding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              sliver: SliverToBoxAdapter(child: HomeSearchBar()),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 25)),
+            const SliverToBoxAdapter(child: ShuffleBanner()),
+            const SliverToBoxAdapter(child: SizedBox(height: 30)),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              sliver: SliverToBoxAdapter(
+                child: CategorySection(
+                  categories: categories,
+                  selectedCategory: selectedCategory,
+                  onSelect: (category) => setState(() => selectedCategory = category),
+                  textMain: textMain,
+                ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: _buildSearchBar(context),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 30)),
+            SliverToBoxAdapter(
+              child: FeaturedSection(
+                items: filteredItems,
+                textMain: textMain,
               ),
-              const SizedBox(height: 25),
-              const ShuffleBanner(),
-              const SizedBox(height: 30),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: _buildCategorySection(textMain),
-              ),
-              const SizedBox(height: 30),
-              _buildFeaturedSection(filteredItems, textMain),
-              const SizedBox(height: 30),
-              _buildStoreSection(textMain),
-              const SizedBox(height: 30),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: _buildPopularSection(mockFoodItems, textMain),
-              ),
-              const SizedBox(height: 120), // Spacing for floating nav bar
-            ],
-          ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 30)),
+            SliverToBoxAdapter(child: StoreSection(textMain: textMain)),
+            const SliverToBoxAdapter(child: SizedBox(height: 30)),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              sliver: SliverToBoxAdapter(child: PopularSection(textMain: textMain)),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 120)),
+          ],
         ),
       ),
     );
   }
+}
+
+class HomeHeader extends StatelessWidget {
+  const HomeHeader({super.key});
 
   String _getGreeting() {
     var hour = DateTime.now().hour;
@@ -83,13 +95,16 @@ class _HomeScreenState extends State<HomeScreen> {
     return 'Good Evening';
   }
 
-  Widget _buildHeader(BuildContext context, Color textMainColor) {
+  @override
+  Widget build(BuildContext context) {
     final authService = AuthService();
     final user = authService.currentUser;
     final userName = user?.displayName ?? user?.email.split('@')[0] ?? 'User';
     final safeName = userName.isEmpty ? 'User' : userName;
     final cappedName = safeName[0].toUpperCase() + safeName.substring(1).toLowerCase();
+    
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textMainColor = isDark ? AppColors.textMainDark : AppColors.textMain;
     final textSecondary = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
 
     return Row(
@@ -120,8 +135,14 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+}
 
-  Widget _buildSearchBar(BuildContext context) {
+class HomeSearchBar extends StatelessWidget {
+  const HomeSearchBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
         Expanded(
@@ -145,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextField(
-                    style: TextStyle(color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                    style: TextStyle(color: isDark ? Colors.white : Colors.black),
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: 'Search for meals...',
@@ -180,8 +201,22 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+}
 
-  Widget _buildSectionHeader(String title, VoidCallback onTap, Color textMainColor) {
+class SectionHeader extends StatelessWidget {
+  final String title;
+  final VoidCallback onTap;
+  final Color textMain;
+
+  const SectionHeader({
+    super.key,
+    required this.title,
+    required this.onTap,
+    required this.textMain,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -190,14 +225,14 @@ class _HomeScreenState extends State<HomeScreen> {
           style: GoogleFonts.inter(
             fontSize: 20,
             fontWeight: FontWeight.w800,
-            color: textMainColor,
+            color: textMain,
           ),
         ),
         GestureDetector(
           onTap: onTap,
-          child: Text(
+          child: const Text(
             'See All',
-            style: GoogleFonts.inter(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.primary,
@@ -207,26 +242,42 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+}
 
-  Widget _buildCategorySection(Color textMainColor) {
+class CategorySection extends StatelessWidget {
+  final List<String> categories;
+  final String selectedCategory;
+  final Function(String) onSelect;
+  final Color textMain;
+
+  const CategorySection({
+    super.key,
+    required this.categories,
+    required this.selectedCategory,
+    required this.onSelect,
+    required this.textMain,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Categories', () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CategoriesScreen(
-                categories: categories,
-                onSelect: (category) {
-                  setState(() {
-                    selectedCategory = category;
-                  });
-                },
+        SectionHeader(
+          title: 'Categories',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CategoriesScreen(
+                  categories: categories,
+                  onSelect: onSelect,
+                ),
               ),
-            ),
-          );
-        }, textMainColor),
+            );
+          },
+          textMain: textMain,
+        ),
         const SizedBox(height: 16),
         SizedBox(
           height: 45,
@@ -238,11 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
               return CategoryChip(
                 label: categories[index],
                 isSelected: selectedCategory == categories[index],
-                onTap: () {
-                  setState(() {
-                    selectedCategory = categories[index];
-                  });
-                },
+                onTap: () => onSelect(categories[index]),
               );
             },
           ),
@@ -250,21 +297,37 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+}
 
-  Widget _buildFeaturedSection(List<FoodItem> items, Color textMainColor) {
+class FeaturedSection extends StatelessWidget {
+  final List<FoodItem> items;
+  final Color textMain;
+
+  const FeaturedSection({
+    super.key,
+    required this.items,
+    required this.textMain,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: _buildSectionHeader('Recommended', () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SeeAllScreen(title: 'Recommended', items: mockFoodItems),
-              ),
-            );
-          }, textMainColor),
+          child: SectionHeader(
+            title: 'Recommended',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SeeAllScreen(title: 'Recommended', items: mockFoodItems),
+                ),
+              );
+            },
+            textMain: textMain,
+          ),
         ),
         const SizedBox(height: 20),
         SizedBox(
@@ -275,23 +338,24 @@ class _HomeScreenState extends State<HomeScreen> {
             physics: const BouncingScrollPhysics(),
             itemCount: items.length > 5 ? 5 : items.length,
             itemBuilder: (context, index) {
+              final food = items[index];
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: FoodCard(
-                  food: items[index],
+                  food: food,
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DetailsScreen(food: items[index]),
+                        builder: (context) => DetailsScreen(food: food),
                       ),
                     );
                   },
                   onAdd: () {
-                    context.read<CartProvider>().addItem(items[index]);
+                    context.read<CartProvider>().addItem(food);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('${items[index].name} added to cart!'),
+                        content: Text('${food.name} added to cart!'),
                         duration: const Duration(seconds: 1),
                         backgroundColor: AppColors.success,
                         behavior: SnackBarBehavior.floating,
@@ -307,24 +371,35 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+}
 
-  Widget _buildStoreSection(Color textMainColor) {
+class StoreSection extends StatelessWidget {
+  final Color textMain;
+
+  const StoreSection({super.key, required this.textMain});
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: _buildSectionHeader('Popular Stores', () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SeeAllScreen(title: 'Popular Stores', items: mockStores),
-              ),
-            );
-          }, textMainColor),
+          child: SectionHeader(
+            title: 'Popular Stores',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SeeAllScreen(title: 'Popular Stores', items: mockStores),
+                ),
+              );
+            },
+            textMain: textMain,
+          ),
         ),
         const SizedBox(height: 20),
-        SliverToBoxAdapter(child: SizedBox(
+        SizedBox(
           height: 180,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
@@ -372,10 +447,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               store.name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.inter(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: textMainColor,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -385,12 +459,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 const SizedBox(width: 4),
                                 Text(
                                   store.rating,
-                                  style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
                                   '• ${store.deliveryTime}',
-                                  style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary),
+                                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                                 ),
                               ],
                             ),
@@ -404,118 +478,140 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
         ),
-        ).child ?? const SizedBox(),
       ],
     );
   }
+}
 
-  Widget _buildPopularSection(List<FoodItem> items, Color textMainColor) {
+class PopularSection extends StatelessWidget {
+  final Color textMain;
+
+  const PopularSection({super.key, required this.textMain});
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Popular Nearby', () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SeeAllScreen(title: 'Popular Nearby', items: mockFoodItems),
-            ),
-          );
-        }, textMainColor),
+        SectionHeader(
+          title: 'Popular Nearby',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SeeAllScreen(title: 'Popular Nearby', items: mockFoodItems),
+              ),
+            );
+          },
+          textMain: textMain,
+        ),
         const SizedBox(height: 20),
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: items.length > 3 ? 3 : items.length,
+          itemCount: mockFoodItems.length > 5 ? 5 : mockFoodItems.length,
           itemBuilder: (context, index) {
-            final food = items[index];
+            final food = mockFoodItems[index];
             return Padding(
               padding: const EdgeInsets.only(bottom: 15),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DetailsScreen(food: food),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      AppImage(
-                        imageUrl: food.imageUrl,
-                        width: 80,
-                        height: 80,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      const SizedBox(width: 15),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              food.name,
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: textMainColor,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              food.category,
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                color: Colors.grey[400],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '\$${food.price.toStringAsFixed(2)}',
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.add_circle_rounded, color: AppColors.primary, size: 30),
-                        onPressed: () {
-                          context.read<CartProvider>().addItem(food);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('${food.name} added to cart!'),
-                              duration: const Duration(seconds: 1),
-                              backgroundColor: AppColors.success,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              child: PopularFoodTile(food: food, textMain: textMain),
             );
           },
         ),
       ],
+    );
+  }
+}
+
+class PopularFoodTile extends StatelessWidget {
+  final FoodItem food;
+  final Color textMain;
+
+  const PopularFoodTile({super.key, required this.food, required this.textMain});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailsScreen(food: food),
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            AppImage(
+              imageUrl: food.imageUrl,
+              width: 80,
+              height: 80,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            const SizedBox(width: 15),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    food.name,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: textMain,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    food.category,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[400],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '\$${food.price.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.add_circle_rounded, color: AppColors.primary, size: 30),
+              onPressed: () {
+                context.read<CartProvider>().addItem(food);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('${food.name} added to cart!'),
+                    duration: const Duration(seconds: 1),
+                    backgroundColor: AppColors.success,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

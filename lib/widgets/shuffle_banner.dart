@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ShuffleBanner extends StatefulWidget {
   const ShuffleBanner({super.key});
@@ -268,11 +269,17 @@ class _ShuffleBannerState extends State<ShuffleBanner> with SingleTickerProvider
               top: 25,
               child: Transform.scale(
                 scale: 1.0 + (animValue * 0.1),
-                child: Image.network(
-                  data['image'],
+                child: CachedNetworkImage(
+                  imageUrl: data['image'],
                   height: 110,
                   fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) => const Icon(Icons.stars, size: 80, color: Colors.white),
+                  memCacheHeight: (110 * MediaQuery.of(context).devicePixelRatio).toInt(),
+                  errorWidget: (_, _, _) => const Icon(Icons.stars, size: 80, color: Colors.white),
+                  placeholder: (_, __) => const SizedBox(
+                    height: 110,
+                    width: 110,
+                    child: Center(child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70)),
+                  ),
                 ),
               ),
             ),

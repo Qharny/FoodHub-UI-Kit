@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../models/food_item.dart';
 import '../utils/app_colors.dart';
+import 'app_image.dart';
 
 class FoodCard extends StatelessWidget {
   final FoodItem food;
@@ -42,22 +42,12 @@ class FoodCard extends StatelessWidget {
           children: [
             Stack(
               children: [
-                ClipRRect(
+                AppImage(
+                  imageUrl: food.imageUrl,
+                  height: 140,
+                  width: double.infinity,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                  child: CachedNetworkImage(
-                    imageUrl: food.imageUrl,
-                    height: 140,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      color: isDark ? Colors.grey[800] : Colors.grey[200],
-                      child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      color: isDark ? Colors.grey[800] : Colors.grey[200],
-                      child: const Icon(Icons.error),
-                    ),
-                  ),
+                  memCacheHeight: (140 * MediaQuery.of(context).devicePixelRatio).toInt(),
                 ),
                 Positioned(
                   top: 10,

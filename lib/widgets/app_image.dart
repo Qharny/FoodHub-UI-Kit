@@ -7,6 +7,8 @@ class AppImage extends StatelessWidget {
   final double? height;
   final BoxFit fit;
   final BorderRadius? borderRadius;
+  final int? memCacheWidth;
+  final int? memCacheHeight;
 
   const AppImage({
     super.key,
@@ -15,6 +17,8 @@ class AppImage extends StatelessWidget {
     this.height,
     this.fit = BoxFit.cover,
     this.borderRadius,
+    this.memCacheWidth,
+    this.memCacheHeight,
   });
 
   @override
@@ -28,6 +32,8 @@ class AppImage extends StatelessWidget {
         width: width,
         height: height,
         fit: fit,
+        cacheWidth: memCacheWidth,
+        cacheHeight: memCacheHeight,
         errorBuilder: (context, error, stackTrace) => _buildErrorWidget(),
       );
     } else {
@@ -36,6 +42,8 @@ class AppImage extends StatelessWidget {
         width: width,
         height: height,
         fit: fit,
+        memCacheWidth: memCacheWidth ?? (width != null ? (width! * MediaQuery.of(context).devicePixelRatio).toInt() : null),
+        memCacheHeight: memCacheHeight ?? (height != null ? (height! * MediaQuery.of(context).devicePixelRatio).toInt() : null),
         placeholder: (context, url) => _buildPlaceholderWidget(),
         errorWidget: (context, url, error) => _buildErrorWidget(),
       );

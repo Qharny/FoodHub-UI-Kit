@@ -17,31 +17,59 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const CartScreen(),
-    const FavoritesScreen(),
-    const ProfileScreen(),
-  ];
+  // Use a map to store initialized screens for lazy loading
+  final Map<int, Widget> _initializedScreens = {};
+
+  Widget _getScreen(int index) {
+    if (!_initializedScreens.containsKey(index)) {
+      switch (index) {
+        case 0:
+          _initializedScreens[index] = const HomeScreen();
+          break;
+        case 1:
+          _initializedScreens[index] = const CartScreen();
+          break;
+        case 2:
+          _initializedScreens[index] = const FavoritesScreen();
+          break;
+        case 3:
+          _initializedScreens[index] = const ProfileScreen();
+          break;
+        default:
+          _initializedScreens[index] = const HomeScreen();
+      }
+    }
+    return _initializedScreens[index]!;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Listen to tab index changes
+    final tabIndex = context.select<TabProvider, int>((provider) => provider.currentIndex);
+    
+    return Scaffold(
+      body: IndexedStack(
+        index: tabIndex,
+        children: List.generate(4, (index) => _getScreen(index)),
+      ),
+      bottomNavigationBar: const BottomNavBar(),
+    );
+  }
+}
+
+class BottomNavBar extends StatelessWidget {
+  const BottomNavBar({super.key});
 
   @override
   Widget build(BuildContext context) {
     final tabProvider = Provider.of<TabProvider>(context);
-    
-    return Scaffold(
-      body: PageTransitionSwitcher(
-        index: tabProvider.currentIndex,
-        child: _screens[tabProvider.currentIndex],
-      ),
-      bottomNavigationBar: _buildBottomNavigationBar(tabProvider),
-    );
-  }
+    final scaffoldBg = Theme.of(context).scaffoldBackgroundColor;
+    final surfaceColor = Theme.of(context).colorScheme.surface;
 
-  Widget _buildBottomNavigationBar(TabProvider tabProvider) {
     return Container(
       padding: const EdgeInsets.only(bottom: 25, left: 20, right: 20, top: 10),
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: scaffoldBg,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
@@ -53,7 +81,7 @@ class _MainScreenState extends State<MainScreen> {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: surfaceColor,
           borderRadius: BorderRadius.circular(25),
           boxShadow: [
             BoxShadow(
@@ -66,89 +94,54 @@ class _MainScreenState extends State<MainScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildNavItem(0, Icons.home_rounded, 'Home', tabProvider),
-            _buildCartNavItem(1, tabProvider),
-            _buildNavItem(2, Icons.favorite_rounded, 'Wishlist', tabProvider),
-            _buildNavItem(3, Icons.person_rounded, 'Profile', tabProvider),
+            _NavBarItem(
+              index: 0,
+              icon: Icons.home_rounded,
+              label: 'Home',
+              isSelected: tabProvider.currentIndex == 0,
+              onTap: () => tabProvider.setTab(0),
+            ),
+            const _CartNavBarItem(),
+            _NavBarItem(
+              index: 2,
+              icon: Icons.favorite_rounded,
+              label: 'Wishlist',
+              isSelected: tabProvider.currentIndex == 2,
+              onTap: () => tabProvider.setTab(2),
+            ),
+            _NavBarItem(
+              index: 3,
+              icon: Icons.person_rounded,
+              label: 'Profile',
+              isSelected: tabProvider.currentIndex == 3,
+              onTap: () => tabProvider.setTab(3),
+            ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildCartNavItem(int index, TabProvider tabProvider) {
-    final isSelected = tabProvider.currentIndex == index;
-    return Consumer<CartProvider>(
-      builder: (context, cart, child) {
-        return GestureDetector(
-          onTap: () => tabProvider.setTab(index),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: isSelected ? AppColors.primary.withOpacity(0.12) : Colors.transparent,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Icon(
-                      Icons.shopping_bag_rounded,
-                      color: isSelected ? AppColors.primary : AppColors.textSecondary,
-                      size: 24,
-                    ),
-                    if (cart.itemCount > 0)
-                      Positioned(
-                        right: -5,
-                        top: -5,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: AppColors.primary,
-                            shape: BoxShape.circle,
-                          ),
-                          constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                          child: Text(
-                            '${cart.itemCount}',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                if (isSelected)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: Text(
-                      'Cart',
-                      style: GoogleFonts.inter(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+class _NavBarItem extends StatelessWidget {
+  final int index;
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
 
-  Widget _buildNavItem(int index, IconData icon, String label, TabProvider tabProvider) {
-    final isSelected = tabProvider.currentIndex == index;
+  const _NavBarItem({
+    required this.index,
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => tabProvider.setTab(index),
+      onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -184,74 +177,72 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-class PageTransitionSwitcher extends StatelessWidget {
-  final int index;
-  final Widget child;
-
-  const PageTransitionSwitcher({
-    super.key,
-    required this.index,
-    required this.child,
-  });
+class _CartNavBarItem extends StatelessWidget {
+  const _CartNavBarItem();
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 400),
-      transitionBuilder: (Widget child, Animation<double> animation) {
-        return FadeTransition(
-          opacity: animation,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0.05, 0),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          ),
-        );
-      },
-      child: KeyedSubtree(
-        key: ValueKey<int>(index),
-        child: child,
-      ),
-    );
-  }
-}
+    final tabProvider = Provider.of<TabProvider>(context);
+    final isSelected = tabProvider.currentIndex == 1;
+    final itemCount = context.select<CartProvider, int>((cart) => cart.itemCount);
 
-class PlaceholderScreen extends StatelessWidget {
-  final String title;
-  final IconData icon;
-
-  const PlaceholderScreen({
-    super.key,
-    required this.title,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return GestureDetector(
+      onTap: () => tabProvider.setTab(1),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary.withOpacity(0.12) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 80, color: AppColors.textSecondary.withOpacity(0.3)),
-            const SizedBox(height: 20),
-            Text(
-              title,
-              style: GoogleFonts.inter(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textMain,
-              ),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
+                  Icons.shopping_bag_rounded,
+                  color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                  size: 24,
+                ),
+                if (itemCount > 0)
+                  Positioned(
+                    right: -5,
+                    top: -5,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: AppColors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                      child: Text(
+                        '$itemCount',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
-            Text(
-              'This screen is coming soon!',
-              style: GoogleFonts.inter(
-                color: AppColors.textSecondary,
+            if (isSelected)
+              Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: Text(
+                  'Cart',
+                  style: GoogleFonts.inter(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
               ),
-            ),
           ],
         ),
       ),
