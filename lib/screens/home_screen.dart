@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildHeader(BuildContext context, Color textMainColor) {
     final authService = AuthService();
     final user = authService.currentUser;
-    final userName = user?.displayName ?? user?.email?.split('@')[0] ?? 'User';
+    final userName = user?.displayName ?? user?.email.split('@')[0] ?? 'User';
     final safeName = userName.isEmpty ? 'User' : userName;
     final cappedName = safeName[0].toUpperCase() + safeName.substring(1).toLowerCase();
     final isDark = Theme.of(context).brightness == Brightness.dark;
