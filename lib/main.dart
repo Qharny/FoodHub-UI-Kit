@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'firebase_options.dart';
 import 'providers/cart_provider.dart';
 import 'providers/favorites_provider.dart';
 import 'providers/tab_provider.dart';
@@ -15,7 +12,6 @@ import 'services/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -34,6 +30,7 @@ class MyApp extends StatelessWidget {
       ],
       builder: (context, _) {
         final themeProvider = Provider.of<ThemeProvider>(context);
+        final authService = Provider.of<AuthService>(context, listen: false);
         
         return MaterialApp(
           title: 'Food Shop',
@@ -63,15 +60,15 @@ class MyApp extends StatelessWidget {
               ThemeData(brightness: Brightness.dark).textTheme,
             ),
           ),
-          home: StreamBuilder<User?>(
-            stream: AuthService().authStateChanges,
+          home: StreamBuilder<LocalUser?>(
+            stream: authService.authStateChanges,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Scaffold(
                   body: Center(child: CircularProgressIndicator()),
                 );
               }
-              if (snapshot.hasData) {
+              if (snapshot.hasData && snapshot.data != null) {
                 return const MainScreen();
               }
               return const OnboardingScreen();
