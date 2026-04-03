@@ -24,7 +24,9 @@ Experience the fluid animations and premium UI in action:
 -->
 
 <p align="center">
-  <video src="https://vt.tiktok.com/ZSHrG1NAX/" width="400" autoplay loop muted playsinline></video>
+   <a href="https://vt.tiktok.com/ZSHrG1NAX/">
+    <img src="assets/shots/front.jpg" width="400" alt="Watch the Demo">
+  </a>
 </p>
 
 ---
