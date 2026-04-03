@@ -5,8 +5,10 @@ import 'providers/cart_provider.dart';
 import 'providers/favorites_provider.dart';
 import 'providers/tab_provider.dart';
 import 'providers/theme_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/main_screen.dart';
 import 'screens/onboarding_screen.dart';
+import 'screens/login_screen.dart';
 import 'utils/app_colors.dart';
 import 'services/auth_service.dart';
 
@@ -60,22 +62,45 @@ class MyApp extends StatelessWidget {
               ThemeData(brightness: Brightness.dark).textTheme,
             ),
           ),
-          home: StreamBuilder<LocalUser?>(
-            stream: authService.authStateChanges,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
+          home: FutureBuilder<bool>(
+            future: _checkOnboarding(),
+            builder: (context, onboardingSnapshot) {
+              if (onboardingSnapshot.connectionState == ConnectionState.waiting) {
                 return const Scaffold(
                   body: Center(child: CircularProgressIndicator()),
                 );
               }
-              if (snapshot.hasData && snapshot.data != null) {
-                return const MainScreen();
+
+              final bool onboardingCompleted = onboardingSnapshot.data ?? false;
+
+              if (!onboardingCompleted) {
+                return const OnboardingScreen();
               }
-              return const OnboardingScreen();
+
+              return StreamBuilder<LocalUser?>(
+                stream: authService.authStateChanges,
+                builder: (context, authSnapshot) {
+                  if (authSnapshot.connectionState == ConnectionState.waiting) {
+                    return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  if (authSnapshot.hasData && authSnapshot.data != null) {
+                    return const MainScreen();
+                  }
+                  return const LoginScreen();
+                },
+              );
             },
           ),
         );
       },
     );
   }
+
+  Future<bool> _checkOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('onboarding_completed') ?? false;
+  }
 }
+
