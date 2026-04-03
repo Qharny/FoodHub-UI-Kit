@@ -23,8 +23,8 @@ Experience the fluid animations and premium UI in action:
   Option 2: Upload to YouTube or Loom, replace the URL below, and use a thumbnail image.
 -->
 
-[![Watch the Demo](assets/shots/App%20video.mp4)](https://github.com/Qharny/FoodHub-UI-Kit)
-> 👆 Replace the link above with your YouTube/Loom URL once uploaded
+[![Watch the Demo](assets/shots/App%20video.mp4)](https://vt.tiktok.com/ZSHrG1NAX/)
+<!-- > 👆 Replace the link above with your YouTube/Loom URL once uploaded -->
 
 ---
 
