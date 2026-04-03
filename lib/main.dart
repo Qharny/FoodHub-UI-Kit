@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         final authService = Provider.of<AuthService>(context, listen: false);
         
         return MaterialApp(
-          title: 'Food Shop',
+          title: 'Food Hub',
           debugShowCheckedModeBanner: false,
           themeMode: themeProvider.themeMode,
           theme: ThemeData(

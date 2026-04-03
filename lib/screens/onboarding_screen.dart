@@ -190,7 +190,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       height: MediaQuery.of(context).size.height * 0.65,
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: NetworkImage(_pages[index].image),
+          image: AssetImage(_pages[index].image),
           fit: BoxFit.cover,
         ),
       ),
