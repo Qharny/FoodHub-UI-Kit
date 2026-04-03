@@ -23,8 +23,9 @@ Experience the fluid animations and premium UI in action:
   Option 2: Upload to YouTube or Loom, replace the URL below, and use a thumbnail image.
 -->
 
-[![Watch the Demo](assets/shots/front.jpg)](https://vt.tiktok.com/ZSHrG1NAX/)
-<!-- > 👆 Replace the link above with your YouTube/Loom URL once uploaded -->
+<p align="center">
+  <video src="assets/shots/App%20video.mp4" width="400" autoplay loop muted playsinline></video>
+</p>
 
 ---
 
@@ -52,28 +53,30 @@ Experience the fluid animations and premium UI in action:
 ## 🎨 Screens
 
 ### 🔐 Authentication Flow
+
 Secure, local-only authentication system. Sessions are persisted using `SharedPreferences`.
 
 | Sign Up | Login |
 | :---: | :---: |
-| ![Sign up](assets/shots/Sign%20up.jpg) | ![Login](assets/shots/Login.jpg) |
+| <img src="assets/shots/Sign%20up.jpg" width="250" alt="Sign Up"> | <img src="assets/shots/Login.jpg" width="250" alt="Login"> |
 
 ### 🏠 Discovery Experience
+
 The home screen is optimized for lightning-fast scrolling, built on a `CustomScrollView` with Sliver architecture.
 
-![Homescreen](assets/shots/Homescreen.jpg)
+<img src="assets/shots/Homescreen.jpg" width="350" alt="Homescreen">
 
 ### 🍔 Marketplace & Recommendations
 
 | Stores | Recommendations |
 | :---: | :---: |
-| ![Store](assets/shots/Store.jpg) | ![Recommendations](assets/shots/Recommendations%20.jpg) |
+| <img src="assets/shots/Store.jpg" width="250" alt="Store"> | <img src="assets/shots/Recommendations%20.jpg" width="250" alt="Recommendations"> |
 
 ### 🛒 Shopping Experience
 
 | Cart | Navigation Bar |
 | :---: | :---: |
-| ![Cart](assets/shots/Cart.jpg) | ![Navbar](assets/shots/Navbar.jpg) |
+| <img src="assets/shots/Cart.jpg" width="250" alt="Cart"> | <img src="assets/shots/Navbar.jpg" width="250" alt="Navigation Bar"> |
 
 ---
 
@@ -88,6 +91,7 @@ The home screen is optimized for lightning-fast scrolling, built on a `CustomScr
 | **Typography** | [Google Fonts — Inter](https://fonts.google.com/specimen/Inter) |
 
 ### 📈 Performance Optimizations
+
 - **Lazy Loading** — Screens are instantiated only when first visited to reduce startup lag.
 - **Memory Caching** — Images are automatically resized in memory based on display dimensions.
 - **Micro-Builds** — Complex widgets are isolated into separate classes to prevent full-screen rebuilds.
