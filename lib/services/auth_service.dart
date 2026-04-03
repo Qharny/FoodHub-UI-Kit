@@ -31,6 +31,8 @@ class AuthService {
 
   final _authStateController = StreamController<LocalUser?>.broadcast();
   LocalUser? _currentUser;
+  final _initCompleter = Completer<void>();
+  Future<void> get initialized => _initCompleter.future;
 
   Future<void> _loadUser() async {
     final prefs = await SharedPreferences.getInstance();
@@ -46,6 +48,7 @@ class AuthService {
       _currentUser = null;
     }
     _authStateController.add(_currentUser);
+    if (!_initCompleter.isCompleted) _initCompleter.complete();
   }
 
   // Sign up with email and password

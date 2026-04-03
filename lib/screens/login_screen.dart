@@ -141,6 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildBackBtn(BuildContext context) {
+    if (!Navigator.canPop(context)) return const SizedBox.shrink();
     return GestureDetector(
       onTap: () => Navigator.pop(context),
       child: Container(

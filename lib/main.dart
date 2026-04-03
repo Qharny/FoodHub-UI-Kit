@@ -63,8 +63,13 @@ class MyApp extends StatelessWidget {
             ),
           ),
           home: FutureBuilder<bool>(
-            future: _checkOnboarding(),
+            future: _initialDataLoad(authService),
             builder: (context, onboardingSnapshot) {
+              if (onboardingSnapshot.hasError) {
+                return Scaffold(
+                  body: Center(child: Text('Error: ${onboardingSnapshot.error}')),
+                );
+              }
               if (onboardingSnapshot.connectionState == ConnectionState.waiting) {
                 return const Scaffold(
                   body: Center(child: CircularProgressIndicator()),
@@ -79,12 +84,14 @@ class MyApp extends StatelessWidget {
 
               return StreamBuilder<LocalUser?>(
                 stream: authService.authStateChanges,
+                initialData: authService.currentUser,
                 builder: (context, authSnapshot) {
-                  if (authSnapshot.connectionState == ConnectionState.waiting) {
-                    return const Scaffold(
-                      body: Center(child: CircularProgressIndicator()),
+                  if (authSnapshot.hasError) {
+                    return Scaffold(
+                      body: Center(child: Text('Auth Error: ${authSnapshot.error}')),
                     );
                   }
+                  
                   if (authSnapshot.hasData && authSnapshot.data != null) {
                     return const MainScreen();
                   }
@@ -98,7 +105,10 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  Future<bool> _checkOnboarding() async {
+  Future<bool> _initialDataLoad(AuthService authService) async {
+    // Wait for auth service to load user from local storage
+    await authService.initialized;
+    // Check onboarding status
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('onboarding_completed') ?? false;
   }
