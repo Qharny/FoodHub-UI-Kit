@@ -24,7 +24,7 @@ Experience the fluid animations and premium UI in action:
 -->
 
 <p align="center">
-  <video src="assets/shots/App%20video.mp4" width="400" autoplay loop muted playsinline></video>
+  <video src="https://vt.tiktok.com/ZSHrG1NAX/" width="400" autoplay loop muted playsinline></video>
 </p>
 
 ---
