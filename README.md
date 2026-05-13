@@ -1,4 +1,4 @@
-# 🥂 FoodShop UI — Premium Food & Grocery Experience
+# 🥂 FoodShop UI — Premium Food & Grocery Experience 
 
 [![Flutter](https://img.shields.io/badge/Flutter-v3.22+-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
 [![Provider](https://img.shields.io/badge/Provider-v6.1.1-6BA539?logo=flutter&logoColor=white)](https://pub.dev/packages/provider)
